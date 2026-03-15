@@ -16,7 +16,7 @@ Automated Log Management: Automatically archives every session to ~/Desktop/Tran
 For a fresh Raspberry Pi 3 setup, run these commands:
 
 1. Install System Dependencies
-Bash
+  Bash
 
   sudo apt update
 
