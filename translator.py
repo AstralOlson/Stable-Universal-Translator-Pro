@@ -5,6 +5,7 @@ import time
 import contextlib
 import subprocess
 import shutil
+import re
 from datetime import datetime
 
 # --- SILENCE STARTUP NOISE ---
@@ -27,7 +28,7 @@ def deep_muzzle():
                 sys.stderr.flush()
                 os.dup2(old_stderr.fileno(), stderr_fd)
 
-# Initialize libraries silently
+# Initialize libraries
 with deep_muzzle():
     import pygame
     import speech_recognition as sr
@@ -35,44 +36,58 @@ with deep_muzzle():
     from gtts import gTTS
     pygame.mixer.init()
 
-# --- LOGGING & MAINTENANCE ---
+# --- HARDENED LOGGING & SECURITY ---
+# Force absolute path resolution to prevent path traversal
+BASE_LOG_DIR = os.path.abspath(os.path.expanduser("~/Desktop/Translator_Logs"))
 
-LOG_DIR = os.path.expanduser("~/Desktop/Translator_Logs")
-
-def save_log(original, translated, target_lang):
-    """Saves session to the log folder on Desktop."""
-    if not os.path.exists(LOG_DIR):
-        os.makedirs(LOG_DIR)
+def safe_save_log(original, translated, target_lang):
+    """Saves session with path traversal protection."""
+    if not os.path.exists(BASE_LOG_DIR):
+        os.makedirs(BASE_LOG_DIR, mode=0o755)
+    
+    # Strip everything except letters to prevent filename injection
+    clean_lang = re.sub(r'[^a-zA-Z]', '', target_lang)
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    filename = f"Translation_{timestamp}.txt"
-    filepath = os.path.join(LOG_DIR, filename)
-    with open(filepath, "w") as f:
+    filename = f"Trans_{clean_lang}_{timestamp}.txt"
+    
+    # Calculate absolute path and verify boundary
+    target_path = os.path.abspath(os.path.join(BASE_LOG_DIR, filename))
+    if not target_path.startswith(BASE_LOG_DIR):
+        print("(!) Security Block: Invalid path detected.")
+        return None
+
+    with open(target_path, "w") as f:
         f.write(f"DATE: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-        f.write(f"TARGET LANGUAGE: {target_lang.upper()}\n")
-        f.write("-" * 30 + "\n")
         f.write(f"ORIGINAL:\n{original}\n\n")
         f.write(f"TRANSLATED:\n{translated}\n")
     return filename
 
-def clear_logs():
-    if os.path.exists(LOG_DIR):
+def safe_clear_logs():
+    """Safely purges logs within the boundary."""
+    if os.path.exists(BASE_LOG_DIR):
         confirm = input("Are you sure you want to DELETE ALL LOGS? (y/n): ").lower()
         if confirm == 'y':
-            shutil.rmtree(LOG_DIR)
-            print("Logs cleared.")
+            for filename in os.listdir(BASE_LOG_DIR):
+                file_path = os.path.join(BASE_LOG_DIR, filename)
+                # Strict check: only delete if inside our log folder
+                if os.path.abspath(file_path).startswith(BASE_LOG_DIR):
+                    try:
+                        if os.path.isfile(file_path): os.unlink(file_path)
+                        elif os.path.isdir(file_path): shutil.rmtree(file_path)
+                    except Exception as e: print(f"Error: {e}")
+            print("Logs cleared safely.")
             time.sleep(1)
     else:
         print("No logs found.")
         time.sleep(1)
 
-# --- VOICE & INTERFACE ---
+# --- CORE TRANSLATION & UI ---
 
 def get_voice():
     clear_terminal()
     sys.__stdout__.write("--- PREPARING MICROPHONE ---\n")
-    sys.__stdout__.flush()
     recognizer = sr.Recognizer()
-    recognizer.pause_threshold = 100.0 
+    recognizer.pause_threshold = 2.0 
     with deep_muzzle():
         try:
             mic = sr.Microphone()
@@ -81,7 +96,6 @@ def get_voice():
                 for i in range(3, 0, -1):
                     sys.__stdout__.write(f"\r   Recording in {i}...   ")
                     sys.__stdout__.flush()
-                    sys.__stdout__.write('\a')
                     time.sleep(1)
                 sys.__stdout__.write("\n >>> RECORDING NOW <<<\n")
                 sys.__stdout__.flush()
@@ -92,33 +106,28 @@ def get_voice():
 
 def main():
     sys.stdout.write("\x1b]2;Universal Translator Pro\x07")
-    sys.stdout.flush()
-
     translator = Translator()
     target = 'es' 
     clear_terminal()
     
     while True:
         print("="*55)
-        print(f" UNIVERSAL TRANSLATOR PRO | TARGET: {LANGUAGES[target].upper()}")
+        print(f" UNIVERSAL TRANSLATOR PRO (SECURE) | TARGET: {LANGUAGES[target].upper()}")
         print("="*55)
         print("[V] Voice   [T] Text   [L] List Codes   [S] Set Lang")
         print("[O] Open Logs   [C] Clear Logs   [Q] Quit")
         choice = input("Choice: ").lower().strip()
 
         if choice == 'q': break
-        elif choice == 'c': clear_logs(); clear_terminal()
+        elif choice == 'c': safe_clear_logs(); clear_terminal()
         elif choice == 'l': 
-            clear_terminal()
-            for c, n in LANGUAGES.items(): print(f"{c}: {n}")
+            clear_terminal(); [print(f"{c}: {n}") for c, n in LANGUAGES.items()]
             input("\nPress Enter..."); clear_terminal()
         elif choice == 'o':
-            if os.path.exists(LOG_DIR): subprocess.Popen(['pcmanfm', LOG_DIR])
-            else: print("(!) No logs found.")
+            if os.path.exists(BASE_LOG_DIR): subprocess.Popen(['pcmanfm', BASE_LOG_DIR])
         elif choice == 's':
             code = input("Enter 2-letter Code: ").strip().lower()
             if code in LANGUAGES: target = code
-            else: print("(!) Invalid code.")
         
         elif choice in ['v', 't']:
             text = ""
@@ -128,7 +137,7 @@ def main():
                 sub = input("Select: ").lower().strip()
                 if sub == 'q': text = input("Enter Text: ")
                 elif sub == 'b':
-                    print("\n--- BULKY MODE --- Paste then type 'DONE' on a new line.")
+                    print("\n--- BULKY MODE --- Paste then type 'DONE'.")
                     lines = []
                     while True:
                         line = input()
@@ -138,28 +147,18 @@ def main():
 
             if text:
                 try:
-                    clean_text = text.replace('\n', ' ').strip()
-                    segments = clean_text.replace('!', '.').replace('?', '.').split('.')
+                    segments = text.replace('!', '.').replace('?', '.').split('.')
                     translated_parts = []
-                    
                     print(f"\n[Processing {len(segments)} segments...]")
                     for segment in segments:
                         if len(segment.strip()) > 1:
-                            try:
-                                time.sleep(0.3)
-                                res = translator.translate(segment.strip(), dest=target)
-                                if res and res.text:
-                                    translated_parts.append(res.text)
-                                    sys.stdout.write("█")
-                                    sys.stdout.flush()
-                            except:
-                                sys.stdout.write("░")
-                                sys.stdout.flush()
+                            time.sleep(0.3)
+                            res = translator.translate(segment.strip(), dest=target)
+                            if res: translated_parts.append(res.text)
+                            sys.stdout.write("█"); sys.stdout.flush()
                     
                     final_translation = ". ".join(translated_parts) + "."
-                    
-                    # Save to log (the reliable way to "copy" text)
-                    save_log(text, final_translation, LANGUAGES[target])
+                    safe_save_log(text, final_translation, LANGUAGES[target])
                     
                     print(f"\n\nTRANSLATED:\n{final_translation}\n")
                     
@@ -170,8 +169,7 @@ def main():
                     pygame.mixer.music.load(fp)
                     pygame.mixer.music.play()
                     while pygame.mixer.music.get_busy(): time.sleep(0.1)
-                except Exception as e:
-                    print(f"\n(!) System Error: {e}")
+                except Exception as e: print(f"\n(!) Error: {e}")
 
 if __name__ == "__main__":
     main()
