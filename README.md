@@ -51,3 +51,15 @@ Bash
 [C] Clear Logs: One-touch maintenance to keep your storage clean.
 
 Portions of this codebase were generated with the assistance of Gemini (Google AI) and curated/refined by Alexander Olson.
+
+I built this as a way to handle long-form newsletters from other countries and languages on a Raspberry Pi 3, I noticed that there wasn't much out there in the way of universal tranlator projects and decided to engineer one from scratch. 
+
+Compared to other AI Slop this code has had a history of fixes!:
+
+I fixed ALSA/Jack driver noise on RPi 3 using a custom suppression context.
+
+I implemented manual segmentation to bypass Google Translate’s 5k character limit.
+
+I also hardened pathing against traversal attacks for better local security.
+
+*Built with a mix of manual engineering and AI-collaboration to solve Raspberry Pi 3 audio driver hurdles.*
