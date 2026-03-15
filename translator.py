@@ -8,7 +8,7 @@ import shutil
 import re
 from datetime import datetime
 
-# --- SILENCE STARTUP NOISE The first failure ---
+# --- Silence the startup noise and all false errors and nonexistant driver failures ---
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = 'hide'
 
 def clear_terminal():
