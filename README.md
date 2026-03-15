@@ -62,4 +62,6 @@ I implemented manual segmentation to bypass Google Translate’s 5k character li
 
 I also hardened pathing against traversal attacks for better local security.
 
+Where most designs fail, this one succeeds. Yes it use's google translate but google translate only has a certain charater limit. Where this code segments larger chunks out of the translation for massive amounts of text processing without the fear of losing data in segments. A user can copy and paste large articles in different languages and translate it all into legable containers on a small screen a small package. As well as logs all translations. 
+
 *Built with a mix of manual engineering and AI-collaboration to solve Raspberry Pi 3 audio driver hurdles.*
