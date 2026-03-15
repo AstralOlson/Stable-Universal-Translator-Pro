@@ -19,15 +19,19 @@ For a fresh Raspberry Pi 3 setup, run these commands:
 1. Install System Dependencies
   Bash
 
-  sudo apt update
 
-  sudo apt install python3-venv portaudio19-dev libasound2-dev flac -y
+        sudo apt update
 
-2. Create a Virtual Environment
+
+        sudo apt install python3-venv portaudio19-dev libasound2-dev flac -y
+
+3. Create a Virtual Environment
 
   Bash
-  python3 -m venv Translator_env
-  source Translator_env/bin/activate
+ 
+    python3 -m venv Translator_env
+  
+    source Translator_env/bin/activate
 
 3. Install Python Libraries
 
