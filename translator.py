@@ -8,7 +8,7 @@ import shutil
 import re
 from datetime import datetime
 
-# --- SILENCE STARTUP NOISE ---
+# --- SILENCE STARTUP NOISE The first failure ---
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = 'hide'
 
 def clear_terminal():
@@ -28,7 +28,7 @@ def deep_muzzle():
                 sys.stderr.flush()
                 os.dup2(old_stderr.fileno(), stderr_fd)
 
-# Initialize libraries
+# Initializing libraries
 with deep_muzzle():
     import pygame
     import speech_recognition as sr
@@ -36,7 +36,7 @@ with deep_muzzle():
     from gtts import gTTS
     pygame.mixer.init()
 
-# --- HARDENED LOGGING & SECURITY ---
+# --- HARDENED LOGGING / SECURITY ---
 # Force absolute path resolution to prevent path traversal
 BASE_LOG_DIR = os.path.abspath(os.path.expanduser("~/Desktop/Translator_Logs"))
 
@@ -45,7 +45,7 @@ def safe_save_log(original, translated, target_lang):
     if not os.path.exists(BASE_LOG_DIR):
         os.makedirs(BASE_LOG_DIR, mode=0o755)
     
-    # Strip everything except letters to prevent filename injection
+    # Strip everything except letters to prevent a filename injection
     clean_lang = re.sub(r'[^a-zA-Z]', '', target_lang)
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     filename = f"Trans_{clean_lang}_{timestamp}.txt"
@@ -69,7 +69,7 @@ def safe_clear_logs():
         if confirm == 'y':
             for filename in os.listdir(BASE_LOG_DIR):
                 file_path = os.path.join(BASE_LOG_DIR, filename)
-                # Strict check: only delete if inside our log folder
+                # Strict check: only delete if inside our log folder 
                 if os.path.abspath(file_path).startswith(BASE_LOG_DIR):
                     try:
                         if os.path.isfile(file_path): os.unlink(file_path)
@@ -81,7 +81,7 @@ def safe_clear_logs():
         print("No logs found.")
         time.sleep(1)
 
-# --- CORE TRANSLATION & UI ---
+# --- CORE TRANSLATION & UI the good stuff ---
 
 def get_voice():
     clear_terminal()
@@ -109,12 +109,14 @@ def main():
     translator = Translator()
     target = 'es' 
     clear_terminal()
+
+    #-----------  MAIN MENU ------------
     
     while True:
         print("="*55)
-        print(f" UNIVERSAL TRANSLATOR PRO (SECURE) | TARGET: {LANGUAGES[target].upper()}")
+        print(f" UNIVERSAL TRANSLATOR PRO | TARGET: {LANGUAGES[target].upper()}")
         print("="*55)
-        print("[V] Voice   [T] Text   [L] List Codes   [S] Set Lang")
+        print("[V] Voice   [T] Text   [L] List Codes   [S] Set Language")
         print("[O] Open Logs   [C] Clear Logs   [Q] Quit")
         choice = input("Choice: ").lower().strip()
 
