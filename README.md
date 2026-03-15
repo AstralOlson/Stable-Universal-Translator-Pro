@@ -49,3 +49,5 @@ Bash
 [O] Open Logs: Instant access to your translation history in the Pi file manager.
 
 [C] Clear Logs: One-touch maintenance to keep your storage clean.
+
+Portions of this codebase were generated with the assistance of Gemini (Google AI) and curated/refined by Alexander Olson.
