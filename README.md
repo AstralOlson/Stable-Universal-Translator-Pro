@@ -18,15 +18,15 @@ For a fresh Raspberry Pi 3 setup, run these commands:
 1. Install System Dependencies
 Bash
 
-sudo apt update
+  sudo apt update
 
-sudo apt install python3-venv portaudio19-dev libasound2-dev flac -y
+  sudo apt install python3-venv portaudio19-dev libasound2-dev flac -y
 
 2. Create a Virtual Environment
 
 Bash
 
-pip install pygame speechrecognition googletrans==3.1.0a0 gTTS
+  pip install pygame speechrecognition googletrans==3.1.0a0 gTTS
 
 📖 Usage
 [V] Voice: Record and translate audio (optimized for up to 20-second segments).
