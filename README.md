@@ -41,7 +41,8 @@ Bash
     pip install pygame speechrecognition googletrans==3.1.0a0 gTTS
 
 📖 Usage
-[V] Voice: Record and translate audio (optimized for up to 20-second segments).
+
+  [V] Voice: Record and translate audio (optimized for up to 20-second segments).
 
 [T] Text: Choose Quick for single lines or Bulky for long-form newsletters.
 
