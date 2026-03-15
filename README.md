@@ -23,7 +23,7 @@ Bash
      sudo apt update
 Bash
 
-        sudo apt install python3-venv portaudio19-dev libasound2-dev flac -y
+    sudo apt install python3-venv portaudio19-dev libasound2-dev flac -y
 
 3. Create a Virtual Environment
 
