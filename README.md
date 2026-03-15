@@ -25,8 +25,13 @@ For a fresh Raspberry Pi 3 setup, run these commands:
 
 2. Create a Virtual Environment
 
-Bash
+  Bash
+  python3 -m venv Translator_env
+  source Translator_env/bin/activate
 
+3. Install Python Libraries
+
+  Bash
   pip install pygame speechrecognition googletrans==3.1.0a0 gTTS
 
 📖 Usage
