@@ -1,6 +1,7 @@
 # Stable-Universal-Translator-Pro
 A Miniature Translator that you can hold in the palm of your hand. It can translate up to 60 languages has voice to voice and text to speech options, and all runs on a Raspberry Pi 3.  It requires: pygame, SpeechRecognition, googletrans==3.1.0a0, and gTTS. 
-🚀 Universal Translator Pro (Raspberry Pi 3 Edition)
+
+  🚀 Universal Translator Pro (Raspberry Pi 3 Edition)
 A robust, voice-and-text translation suite engineered for stability on the Raspberry Pi 3. This tool is designed to handle everything from quick spoken phrases to massive multi-paragraph newsletters without crashing or hitting API rate limits.
 
 ✨ Key Features
